@@ -9,7 +9,8 @@ val Versions = Map(
   "scalacheck" -> "1.13.4",
   "discipline" -> "0.7.3",
   "macro-paradise" -> "2.1.0",
-  "kind-projector" -> "0.9.4"
+  "kind-projector" -> "0.9.4",
+  "akka-http" -> "10.0.9"
 )
 
 
@@ -102,8 +103,8 @@ val commonDependencies = Seq(
 lazy val hammock = project.in(file("."))
   .settings(buildSettings)
   .settings(noPublishSettings)
-  .dependsOn(coreJVM, coreJS, circeJVM, circeJS)
-  .aggregate(coreJVM, coreJS, circeJVM, circeJS)
+  .dependsOn(coreJVM, coreJS, circeJVM, circeJS, akka)
+  .aggregate(coreJVM, coreJS, circeJVM, circeJS, akka)
   .enablePlugins(ScalaUnidocPlugin)
 
 
@@ -137,6 +138,17 @@ lazy val circe = crossProject.in(file("hammock-circe"))
 
 lazy val circeJVM = circe.jvm
 lazy val circeJS = circe.js
+
+lazy val akka = project.in(file("hammock-akka-http"))
+  .settings(moduleName := "hammock-akka-http")
+  .settings(buildSettings: _*)
+  .settings(commonDependencies: _*)
+  .settings(publishSettings: _*)
+  .settings(libraryDependencies ++= Seq(
+    "com.typesafe.akka" %% "akka-http" % Versions("akka-http")
+  ))
+  .dependsOn(coreJVM)
+
 
 lazy val docs = project.in(file("docs"))
   .dependsOn(coreJVM, circeJVM)
